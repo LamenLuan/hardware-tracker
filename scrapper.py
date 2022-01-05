@@ -92,7 +92,7 @@ def writePriceInSheet():
                 raw=False
             )
         except TypeError as err:
-            printError(err)
+            printError(err, "writePriceInSheet")
             return
     else: print(f"Warning: Date '{dateToday}' already tracked")
 
