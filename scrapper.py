@@ -41,7 +41,7 @@ def getPichauPrice():
         mainDiv = soup.find("div", {"class": pichauClass})
         regFinder = re.compile("R\$<!-- -->([0-9]+(.[0-9]+)*,[0-9]{2})")
         priceStr = regFinder.findall(str(mainDiv))[0][0].replace(",", ".")
-        return float(priceStr)
+        return bestPriceDict("Pichau", float(priceStr))
     except AttributeError as err: printError(err, "pichauPrice")
 
 def getKabumPrice():
@@ -49,7 +49,7 @@ def getKabumPrice():
     try:
         priceTag = soup.find("h4", itemprop="price")
         priceStr = priceTag.text.replace("R$\xa0", "").replace(",", ".")
-        return float(priceStr)
+        return bestPriceDict("Kabum", float(priceStr))
     except AttributeError as err: printError(err, "kabumPrice")
 
 def getTerabytePrice():
@@ -57,7 +57,7 @@ def getTerabytePrice():
     try:
         priceTag = soup.find("p", id="valVista")
         priceStr = priceTag.text.replace("R$ ", "").replace(",", ".")
-        return float(priceStr)
+        return bestPriceDict("Terabyte", float(priceStr))
     except AttributeError as err: printError(err, "terabytePrice")
 
 def bestPriceDict(store, price):
@@ -66,16 +66,20 @@ def bestPriceDict(store, price):
         "price": price
     }
 
-def getBestPrice():
-    kabumPrice = getKabumPrice()
-    pichauPrice = getPichauPrice()
-    terabytePrice = getTerabytePrice()
+def getBiggerValue(price1, price2):
+    return price1 if price1["price"] > price2["price"] else price2
 
-    if(kabumPrice < pichauPrice and kabumPrice < terabytePrice):
-        if(kabumPrice): return bestPriceDict("Kabum", kabumPrice)
-    elif(pichauPrice < terabytePrice):
-        if(pichauPrice): return bestPriceDict("Pichau", pichauPrice)
-    elif(terabytePrice): return bestPriceDict("Terabyte", terabytePrice)
+def getBestPrice():
+    prices = [ None, getPichauPrice(), getTerabytePrice() ]
+    try:
+        for price in prices: prices.remove(None)
+    except:
+        if len(prices) == 0: return None
+    while len(prices) > 1:
+        biggerValue = getBiggerValue(prices[0], prices[1])
+        prices.remove(biggerValue)
+    return prices[0]
+
 
 def writePriceInSheet():
     serviceAccount = gspread.service_account("gspread\\account_key.json")
@@ -110,5 +114,5 @@ def runScrapper():
         printError(err, "writePriceInSheet")
     except auth.exceptions.TransportError as err:
         printError("Connection error", "writePriceInSheet")
-        
+
 runScrapper()
