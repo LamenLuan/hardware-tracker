@@ -1,5 +1,8 @@
+from math import e
+from os import error
 from bs4 import BeautifulSoup
 import re
+from google import auth
 import requests
 from selenium import webdriver
 import gspread
@@ -105,5 +108,7 @@ def runScrapper():
         printError(err, "writePriceInSheet")
     except gspread.WorksheetNotFound as err:
         printError(err, "writePriceInSheet")
-
+    except auth.exceptions.TransportError as err:
+        printError("Connection error", "writePriceInSheet")
+        
 runScrapper()
