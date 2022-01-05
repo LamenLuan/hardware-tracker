@@ -70,7 +70,7 @@ def getBiggerValue(price1, price2):
     return price1 if price1["price"] > price2["price"] else price2
 
 def getBestPrice():
-    prices = [ None, getPichauPrice(), getTerabytePrice() ]
+    prices = [ getKabumPrice(), getPichauPrice(), getTerabytePrice() ]
     try:
         for price in prices: prices.remove(None)
     except:
