@@ -15,9 +15,18 @@ def prepareSoup(url):
     try: return BeautifulSoup(page.text, "html.parser")
     except AttributeError as err: printError(err, "prepareSoup")
    
-def prepareSeleniumSoup(driver):
-    page = driver.page_source
-    try: return BeautifulSoup(page, "html.parser")
+def getDriver():
+    options = webdriver.FirefoxOptions()
+    options.headless = True;
+    return webdriver.Firefox(options=options)
+
+def prepareSeleniumSoup(url):
+    driver = getDriver()
+    try:
+        driver.get(url)
+        page = driver.page_source
+        driver.close()
+        return BeautifulSoup(page, "html.parser")
     except AttributeError as err: printError(err, "prepareSeleniumSoup")
 
 def pichauPrice():
@@ -36,14 +45,11 @@ def kabumPrice():
     except AttributeError as err: printError(err, "kabumPrice")
 
 def terabytePrice():
-    options = webdriver.FirefoxOptions()
-    options.headless = True;
-    driver = webdriver.Firefox(options=options)
-    driver.get(terabyteUrl)
-    soup = prepareSeleniumSoup(driver)
-    driver.close()
-    priceTag = soup.find("p", id="valVista")
-    return priceTag.text.replace("R$ ", "")
+    soup = prepareSeleniumSoup(terabyteUrl)
+    try:
+        priceTag = soup.find("p", id="valVista")
+        return priceTag.text.replace("R$ ", "")
+    except AttributeError as err: printError(err, "terabytePrice")
 
 print( "Kabum: R$ " + kabumPrice() )
 print( "Pichau: R$ " + pichauPrice() )
