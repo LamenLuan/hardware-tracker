@@ -88,7 +88,7 @@ def writePriceInSheet():
             i = len(cellList) + 1
             workSheet.update(
                 f"A{i}:C{i}",
-                [ [dateToday, bestPrice["price"], bestPrice["store"]] ],
+                [ [ dateToday, bestPrice["price"], bestPrice["store"] ] ],
                 raw=False
             )
         except TypeError as err:
@@ -99,7 +99,7 @@ def writePriceInSheet():
 def runScrapper():
     try:
         writePriceInSheet()
-    # If I cant communicate with Google sheets, I return the best price in console
+    # If cant communicate with Google sheets, I return the best price in console
     except gspread.SpreadsheetNotFound as err: 
         print( getBestPrice() )
         printError(err, "writePriceInSheet")
