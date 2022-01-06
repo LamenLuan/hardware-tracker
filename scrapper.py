@@ -20,7 +20,7 @@ def prepareSoup(url):
    
 def getDriver():
     options = webdriver.FirefoxOptions()
-    options.headless = True;
+    options.headless = True
     return webdriver.Firefox(options=options)
 
 def prepareSeleniumSoup(url):
@@ -32,37 +32,41 @@ def prepareSeleniumSoup(url):
         return BeautifulSoup(page, "html.parser")
     except AttributeError as err: printError(err, "prepareSeleniumSoup")
 
-def getPichauPrice():
-    soup = prepareSoup(pichauUrl)
-    try:
-        pichauClass = "MuiGrid-root MuiGrid-item MuiGrid-grid-xs-12 MuiGrid-grid-sm-5"
-        mainDiv = soup.find("div", {"class": pichauClass})
-        regFinder = re.compile("R\$<!-- -->([0-9]+(.[0-9]+)*,[0-9]{2})")
-        priceStr = regFinder.findall(str(mainDiv))[0][0].replace(",", ".")
-        return bestPriceDict("Pichau", float(priceStr))
-    except AttributeError as err: printError(err, "pichauPrice")
-
-def getKabumPrice():
-    soup = prepareSoup(kabumUrl)
-    try:
-        priceTag = soup.find("h4", itemprop="price")
-        priceStr = priceTag.text.replace("R$\xa0", "").replace(",", ".")
-        return bestPriceDict("Kabum", float(priceStr))
-    except AttributeError as err: printError(err, "kabumPrice")
-
-def getTerabytePrice():
-    soup = prepareSeleniumSoup(terabyteUrl)
-    try:
-        priceTag = soup.find("p", id="valVista")
-        priceStr = priceTag.text.replace("R$ ", "").replace(",", ".")
-        return bestPriceDict("Terabyte", float(priceStr))
-    except AttributeError as err: printError(err, "terabytePrice")
+def parseFloat(floatStr):
+    floatStr = floatStr.replace("R$ ", "").replace(",", ".")
+    return float(floatStr)
 
 def bestPriceDict(store, price):
     return {
         "store": store,
         "price": price
     }
+
+def getPichauPrice():
+    soup = prepareSoup(pichauUrl)
+    try:
+        pichauClass = "MuiGrid-root MuiGrid-item MuiGrid-grid-xs-12 MuiGrid-grid-sm-5"
+        mainDiv = soup.find("div", {"class": pichauClass})
+        regFinder = re.compile("R\$<!-- -->([0-9]+(.[0-9]+)*,[0-9]{2})")
+        priceStr = regFinder.findall(str(mainDiv))[0][0]
+        return bestPriceDict( "Pichau", parseFloat(priceStr) )
+    except AttributeError as err: printError(err, "pichauPrice")
+
+def getKabumPrice():
+    soup = prepareSoup(kabumUrl)
+    try:
+        priceTag = soup.find("h4", itemprop="price")
+        priceStr = priceTag.text.replace("\xa0", " ")
+        return bestPriceDict( "Kabum", parseFloat(priceStr) )
+    except AttributeError as err: printError(err, "kabumPrice")
+
+def getTerabytePrice():
+    soup = prepareSeleniumSoup(terabyteUrl)
+    try:
+        priceTag = soup.find("p", id="valVista")
+        priceStr = priceTag.text
+        return bestPriceDict( "Terabyte", parseFloat(priceStr) )
+    except AttributeError as err: printError(err, "terabytePrice")
 
 def getBiggerValue(price1, price2):
     return price1 if price1["price"] > price2["price"] else price2
@@ -82,7 +86,7 @@ def getBestPrice():
 def writePriceInSheet():
     serviceAccount = gspread.service_account("gspread\\account_key.json")
     spreadSheet = serviceAccount.open("tracking-sheet")
-    dateToday = datetime.today().date().strftime("%D/%M/%Y")
+    dateToday = datetime.today().date().strftime("%d/%m/%Y")
     workSheet = spreadSheet.worksheet("BestPrice")
     cellList = workSheet.get_values("A:A")
     rowsWritten = len(cellList)
@@ -91,15 +95,15 @@ def writePriceInSheet():
     try:
         if cellList.count([dateToday]) == 0:
             if rowsWritten == workSheet.row_count: workSheet.add_rows(1)
-            rowsWritten = rowsWritten + 1
+            rowsWritten += 1
             workSheet.update(
                 "A{0}:C{0}".format(rowsWritten),
                 [ [ dateToday, bestPrice["price"], bestPrice["store"] ] ],
-                raw=False
+                raw = False
             )
         else:
-            lastPrice = workSheet.acell(f"B{rowsWritten}").value
-            lastPrice = float( lastPrice.replace("R$ ", "").replace(",", ".") )
+            lastPriceStr = workSheet.acell(f"B{rowsWritten}").value
+            lastPrice = parseFloat(lastPriceStr)
             if bestPrice['price'] < lastPrice:
                 workSheet.update(
                     "B{0}:C{0}".format(rowsWritten),
