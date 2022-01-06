@@ -110,21 +110,19 @@ def writePriceInSheet():
                     [ [ time, bestPrice['price'], bestPrice['store'] ] ],
                     raw = False
                 )
-    except TypeError as err:
+                
+    except TypeError or FileNotFoundError as err:
+        printError(err, "writePriceInSheet")
+    except gspread.SpreadsheetNotFound or gspread.WorksheetNotFound as err: 
         printError(err, "writePriceInSheet")
         
 
 def runScrapper():
     try:
         writePriceInSheet()
-        return
     # If cant communicate with Google sheets, I return the best price in console
-    except gspread.SpreadsheetNotFound or gspread.WorksheetNotFound as err: 
-        printError(err, "writePriceInSheet")
-    except FileNotFoundError as err:
-        printError(err, "writePriceInSheet")
     except exceptions.TransportError as err:
         printError("Connection error", "writePriceInSheet")
-    print( getBestPrice() )
+        print( getBestPrice() )
 
 runScrapper()
