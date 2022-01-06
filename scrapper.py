@@ -82,22 +82,32 @@ def getBestPrice():
 def writePriceInSheet():
     serviceAccount = gspread.service_account("gspread\\account_key.json")
     spreadSheet = serviceAccount.open("tracking-sheet")
-    dateToday = datetime.today().strftime('%Y-%m-%d-%H:%M:%S')
+    dateToday = datetime.today().date().strftime("%D/%M/%Y")
     workSheet = spreadSheet.worksheet("BestPrice")
     cellList = workSheet.get_values("A:A")
+    rowsWritten = len(cellList)
+    bestPrice = getBestPrice()
 
     try:
-        bestPrice = getBestPrice()
-        # New line index
-        i = len(cellList) + 1
-        workSheet.update(
-            f"A{i}:C{i}",
-            [ [ dateToday, bestPrice["price"], bestPrice["store"] ] ],
-            raw=False
-        )
+        if cellList.count([dateToday]) == 0:
+            if rowsWritten == workSheet.row_count: workSheet.add_rows(1)
+            rowsWritten = rowsWritten + 1
+            workSheet.update(
+                "A{0}:C{0}".format(rowsWritten),
+                [ [ dateToday, bestPrice["price"], bestPrice["store"] ] ],
+                raw=False
+            )
+        else:
+            lastPrice = workSheet.acell(f"B{rowsWritten}").value
+            lastPrice = float( lastPrice.replace("R$ ", "").replace(",", ".") )
+            if bestPrice['price'] < lastPrice:
+                workSheet.update(
+                    "B{0}:C{0}".format(rowsWritten),
+                    [ [ bestPrice['price'], bestPrice['store'] ] ]
+                )
     except TypeError as err:
         printError(err, "writePriceInSheet")
-        return
+        
 
 def runScrapper():
     try:
