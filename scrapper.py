@@ -1,12 +1,10 @@
-from math import e
-from os import error
 from bs4 import BeautifulSoup
 import re
-from google import auth
+from google.auth import exceptions
 import requests
 from selenium import webdriver
 import gspread
-from datetime import date
+from datetime import datetime
 
 kabumUrl = "https://www.kabum.com.br/produto/115318/headset-gamer-hyperx-cloud-core-som-surround-7-1-drivers-53mm-usb-e-p3-hx-hscc-2-bk-ww"
 pichauUrl = "https://www.pichau.com.br/headset-gamer-hyperx-cloud-core-som-surround-7-1-drivers-53mm-preto-hx-hscc-2-bk-ww"
@@ -84,35 +82,34 @@ def getBestPrice():
 def writePriceInSheet():
     serviceAccount = gspread.service_account("gspread\\account_key.json")
     spreadSheet = serviceAccount.open("tracking-sheet")
-    dateToday = date.today().isoformat()
+    dateToday = datetime.today().strftime('%Y-%m-%d-%H:%M:%S')
     workSheet = spreadSheet.worksheet("BestPrice")
     cellList = workSheet.get_values("A:A")
 
-    if cellList.count([dateToday]) == 0:
-        try:
-            bestPrice = getBestPrice()
-            # New line index
-            i = len(cellList) + 1
-            workSheet.update(
-                f"A{i}:C{i}",
-                [ [ dateToday, bestPrice["price"], bestPrice["store"] ] ],
-                raw=False
-            )
-        except TypeError as err:
-            printError(err, "writePriceInSheet")
-            return
-    else: print(f"Warning: Date '{dateToday}' already tracked")
+    try:
+        bestPrice = getBestPrice()
+        # New line index
+        i = len(cellList) + 1
+        workSheet.update(
+            f"A{i}:C{i}",
+            [ [ dateToday, bestPrice["price"], bestPrice["store"] ] ],
+            raw=False
+        )
+    except TypeError as err:
+        printError(err, "writePriceInSheet")
+        return
 
 def runScrapper():
     try:
         writePriceInSheet()
+        return
     # If cant communicate with Google sheets, I return the best price in console
-    except gspread.SpreadsheetNotFound as err: 
-        print( getBestPrice() )
+    except gspread.SpreadsheetNotFound or gspread.WorksheetNotFound as err: 
         printError(err, "writePriceInSheet")
-    except gspread.WorksheetNotFound as err:
+    except FileNotFoundError as err:
         printError(err, "writePriceInSheet")
-    except auth.exceptions.TransportError as err:
+    except exceptions.TransportError as err:
         printError("Connection error", "writePriceInSheet")
+    print( getBestPrice() )
 
 runScrapper()
