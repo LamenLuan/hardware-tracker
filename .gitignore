@@ -1,6 +1,7 @@
 geckodriver.log
 test.py
-gspread
 scrapper.bat
 requests
 .vscode
+__pycache__
+gspread/account_key.json
