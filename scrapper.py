@@ -94,7 +94,6 @@ def writePriceInSheet():
 
     try:
         if cellList.count([dateToday]) == 0:
-            if rowsWritten == workSheet.row_count: workSheet.add_rows(1)
             rowsWritten += 1
             workSheet.update(
                 "A{0}:C{0}".format(rowsWritten),
