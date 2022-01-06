@@ -86,18 +86,19 @@ def getBestPrice():
 def writePriceInSheet():
     serviceAccount = gspread.service_account("gspread\\account_key.json")
     spreadSheet = serviceAccount.open("tracking-sheet")
-    dateToday = datetime.today().date().strftime("%d/%m/%Y")
+    date = datetime.today().date().strftime("%d/%m/%Y")
+    time = datetime.today().time().strftime("%H:%M:%S")
     workSheet = spreadSheet.worksheet("BestPrice")
     cellList = workSheet.get_values("A:A")
     rowsWritten = len(cellList)
     bestPrice = getBestPrice()
 
     try:
-        if cellList.count([dateToday]) == 0:
+        if cellList.count([date]) == 0:
             rowsWritten += 1
             workSheet.update(
-                "A{0}:C{0}".format(rowsWritten),
-                [ [ dateToday, bestPrice["price"], bestPrice["store"] ] ],
+                "A{0}:D{0}".format(rowsWritten),
+                [ [ date, time, bestPrice["price"], bestPrice["store"] ] ],
                 raw = False
             )
         else:
@@ -105,8 +106,9 @@ def writePriceInSheet():
             lastPrice = parseFloat(lastPriceStr)
             if bestPrice['price'] < lastPrice:
                 workSheet.update(
-                    "B{0}:C{0}".format(rowsWritten),
-                    [ [ bestPrice['price'], bestPrice['store'] ] ]
+                    "B{0}:D{0}".format(rowsWritten),
+                    [ [ time, bestPrice['price'], bestPrice['store'] ] ],
+                    raw = False
                 )
     except TypeError as err:
         printError(err, "writePriceInSheet")
