@@ -6,6 +6,7 @@ This python script is built to track a product price in the three biggest brazil
 - beautifulsoup4
 - selenium
 - gspread
+- win10toast
 ### Configure Google Cloud Platform APIs
 I learned that configuration in this [video](https://youtu.be/bu5wXjz2KvU):
 - In a project, enable Google Drive and Google Sheets APIs
