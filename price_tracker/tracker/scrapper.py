@@ -1,3 +1,4 @@
+import locale
 import gspread
 from datetime import datetime
 
@@ -31,19 +32,19 @@ def checkIfBestPriceEver(price: float, workSheet: Worksheet, rowsWritten: int):
     return bestPrice
 
 def sendNotification(bestPrice: dict):
-    preco = bestPrice['price']
+    precoStr = locale.currency(bestPrice['price'], grouping=True)
     store = bestPrice['store']
     toaster = ToastNotifier()
     toaster.show_toast(
         title = "Novo melhor preço!",
-        msg = f"O produto está por R$ {preco} na {store}",
+        msg = f"O produto está por {precoStr} na {store}",
         duration=15
     )
 
 def scrapper():
     serviceAccount = gspread.service_account("..\gspread\\account_key.json")
     spreadSheet = serviceAccount.open("tracking-sheet")
-    date = datetime.today().date().strftime("%d/%m/%Y")
+    date = datetime.today().date().isoformat()
     time = datetime.today().time().strftime("%H:%M:%S")
     workSheet = spreadSheet.worksheet("BestPrice")
     cellList = workSheet.get_values("A:A")

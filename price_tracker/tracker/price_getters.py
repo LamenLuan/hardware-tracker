@@ -6,7 +6,7 @@ kabumUrl = "https://www.kabum.com.br/produto/115318/headset-gamer-hyperx-cloud-c
 pichauUrl = "https://www.pichau.com.br/headset-gamer-hyperx-cloud-core-som-surround-7-1-drivers-53mm-preto-hx-hscc-2-bk-ww"
 terabyteUrl = "https://www.terabyteshop.com.br/produto/18711/headset-gamer-hyperx-cloud-core-surround-71-35mm-ou-usb-black-hx-hscc-2-bkww"
 
-def bestPriceDict(store, price):
+def bestPriceDict(store, price: float):
     return {
         "store": store,
         "price": price
