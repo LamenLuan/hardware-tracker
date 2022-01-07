@@ -11,7 +11,6 @@ def getBiggerValue(price1: dict, price2: dict):
 
 def getBestPrice():
     prices = [ getKabumPrice(), getPichauPrice(), getTerabytePrice() ]
-    print(prices)
     try:
         for price in prices: prices.remove(None)
     except:
