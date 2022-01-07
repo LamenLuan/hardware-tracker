@@ -37,7 +37,7 @@ def sendNotification(bestPrice: dict):
     toaster.show_toast(
         title = "Novo melhor preço!",
         msg = f"O produto está por R$ {preco} na {store}",
-        duration=30
+        duration=15
     )
 
 def scrapper():
