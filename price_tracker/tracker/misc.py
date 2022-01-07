@@ -1,6 +1,7 @@
 def printError(err, function):
     print("Error: {0} in ".format(err) + function)
 
-def parseRealToFloat(floatStr):
+def parseRealToFloat(floatStr: str):
+    floatStr = floatStr.replace(".", "")
     floatStr = floatStr.replace("R$ ", "").replace(",", ".")
     return float(floatStr)
