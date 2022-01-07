@@ -6,11 +6,12 @@ from tracker.price_getters import *
 from tracker.misc import printError, parseRealToFloat
 from win10toast import ToastNotifier
 
-def getBiggerValue(price1, price2):
+def getBiggerValue(price1: dict, price2: dict):
     return price1 if price1["price"] > price2["price"] else price2
 
 def getBestPrice():
     prices = [ getKabumPrice(), getPichauPrice(), getTerabytePrice() ]
+    print(prices)
     try:
         for price in prices: prices.remove(None)
     except:
@@ -30,7 +31,7 @@ def checkIfBestPriceEver(price: float, workSheet: Worksheet, rowsWritten: int):
             break
     return bestPrice
 
-def sendNotification(bestPrice):
+def sendNotification(bestPrice: dict):
     preco = bestPrice['price']
     store = bestPrice['store']
     toaster = ToastNotifier()

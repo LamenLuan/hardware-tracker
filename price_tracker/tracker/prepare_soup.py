@@ -1,23 +1,18 @@
 from bs4 import BeautifulSoup
-from selenium import webdriver
 from tracker.misc import printError
 import requests
+import cloudscraper
 
-def getDriver():
-    options = webdriver.FirefoxOptions()
-    options.headless = True
-    return webdriver.Firefox(options=options)
+def cloudScrap(url):
+    for i in range(30):
+        try:
+            scraper = cloudscraper.create_scraper()
+            return scraper.get(url)
+        except cloudscraper.exceptions.CloudflareChallengeError: continue
 
 def prepareSoup(url):
     page = requests.get(url)
+    if not page: page = cloudScrap(url)
+
     try: return BeautifulSoup(page.text, "html.parser")
     except AttributeError as err: printError(err, "prepareSoup")
-
-def prepareSeleniumSoup(url):
-    driver = getDriver()
-    try:
-        driver.get(url)
-        page = driver.page_source
-        driver.close()
-        return BeautifulSoup(page, "html.parser")
-    except AttributeError as err: printError(err, "prepareSeleniumSoup")

@@ -1,5 +1,5 @@
 import re
-from tracker.prepare_soup import prepareSoup, prepareSeleniumSoup
+from tracker.prepare_soup import prepareSoup
 from tracker.misc import printError, parseRealToFloat
 
 kabumUrl = "https://www.kabum.com.br/produto/115318/headset-gamer-hyperx-cloud-core-som-surround-7-1-drivers-53mm-usb-e-p3-hx-hscc-2-bk-ww"
@@ -31,7 +31,7 @@ def getPichauPrice():
     except AttributeError as err: printError(err, "pichauPrice")
 
 def getTerabytePrice():
-    soup = prepareSeleniumSoup(terabyteUrl)
+    soup = prepareSoup(terabyteUrl)
     try:
         priceTag = soup.find("p", id="valVista")
         priceStr = priceTag.text

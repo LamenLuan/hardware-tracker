@@ -4,7 +4,7 @@ This python script is built to track a product price in the three biggest brazil
 ## Tutorial to run
 ### Install with pip
 - beautifulsoup4
-- selenium
+- cloudscraper
 - gspread
 - win10toast
 ### Configure Google Cloud Platform APIs
