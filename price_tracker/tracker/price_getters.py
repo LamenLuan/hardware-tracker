@@ -2,7 +2,7 @@ import re
 from tracker.prepare_soup import prepareSoup
 from tracker.misc import printError, parseRealToFloat
 
-def bestPriceDict(store, price: float):
+def bestPriceDict(store: str, price: float):
     return {
         "store": store,
         "price": price
