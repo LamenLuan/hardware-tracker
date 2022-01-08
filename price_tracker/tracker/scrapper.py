@@ -40,15 +40,12 @@ def getBestPrice():
 
     return prices[0]
 
-def checkIfBestPriceEver(price: float, workSheet: Worksheet, rowsWritten: int):
-    bestPrice = True
-    for i in range(rowsWritten - 1):
-        rowStr = workSheet.cell(i + 2, 3).value
-        rowPrice = parseRealToFloat(rowStr)
-        if price >= rowPrice:
-            bestPrice = False
-            break
-    return bestPrice
+def checkIfBestPriceEver(price: float, workSheet: Worksheet):
+    bestPrice = parseRealToFloat(workSheet.cell(2, 6).value)
+    if bestPrice is None or price < bestPrice:
+        workSheet.update_cell(2, 6, price) 
+        return True
+    return False
 
 def sendNotification(bestPrice: dict):
     precoStr = locale.currency(bestPrice['price'], grouping=True)
@@ -70,7 +67,7 @@ def scrapper():
     cellList = workSheet.get_values("A:A")
     rowsWritten = len(cellList)
     bestPrice = getBestPrice()
-    notify = checkIfBestPriceEver(bestPrice['price'], workSheet, rowsWritten)
+    notify = checkIfBestPriceEver(bestPrice['price'], workSheet)
         
     try:
         if cellList.count([dateStr]) == 0:
