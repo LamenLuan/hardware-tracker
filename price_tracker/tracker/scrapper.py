@@ -41,9 +41,11 @@ def getBestPrice():
     return prices[0]
 
 def checkIfBestPriceEver(price: float, workSheet: Worksheet):
-    bestPrice = parseRealToFloat(workSheet.cell(2, 6).value)
+    bestPrice = workSheet.cell(2, 7).value
+    if bestPrice: bestPrice = parseRealToFloat(bestPrice)
+    
     if bestPrice is None or price < bestPrice:
-        workSheet.update_cell(2, 6, price) 
+        workSheet.update_cell(2, 7, price) 
         return True
     return False
 
@@ -73,8 +75,14 @@ def scrapper():
         if cellList.count([dateStr]) == 0:
             rowsWritten += 1
             workSheet.update(
-                "A{0}:D{0}".format(rowsWritten),
-                [ [dateStr, timeStr, bestPrice["price"], bestPrice["store"]] ],
+                "A{0}:E{0}".format(rowsWritten),
+                [[
+                    dateStr,
+                    timeStr,
+                    bestPrice["price"],
+                    bestPrice["store"],
+                    bestPrice["name"]
+                ]],
                 raw = False
             )
         else:
@@ -82,8 +90,13 @@ def scrapper():
             lastPrice = parseRealToFloat(lastPriceStr)
             if bestPrice['price'] < lastPrice:
                 workSheet.update(
-                    "B{0}:D{0}".format(rowsWritten),
-                    [ [ timeStr, bestPrice['price'], bestPrice['store'] ] ],
+                    "B{0}:E{0}".format(rowsWritten),
+                    [[
+                        timeStr,
+                        bestPrice['price'],
+                        bestPrice['store'],
+                        bestPrice["name"]
+                    ]],
                     raw = False
                 )
         end = time.time()
