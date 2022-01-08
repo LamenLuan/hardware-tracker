@@ -5,3 +5,4 @@ requests
 .vscode
 __pycache__
 gspread/account_key.json
+sites.json
