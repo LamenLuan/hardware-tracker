@@ -11,7 +11,7 @@ from win10toast import ToastNotifier
 def getBiggerValue(price1: dict, price2: dict):
     return price1 if price1["cash"] > price2["cash"] else price2
 
-def CheckIfValidSite(site: str, priceList: list):
+def CheckValidSiteGetPrice(site: str, priceList: list):
     regFinder = re.compile("https://www.([A-Za-z0-9]+)")
     siteName = regFinder.findall(site)[0]
 
@@ -22,7 +22,7 @@ def CheckIfValidSite(site: str, priceList: list):
 def PricesFromSites(file: TextIOWrapper):
     prices = []
     sites = json.load(file)
-    for site in sites: CheckIfValidSite(site, prices)
+    for site in sites: CheckValidSiteGetPrice(site, prices)
     return prices
 
 def getBestPrice():
