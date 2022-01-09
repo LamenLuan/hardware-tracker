@@ -1,16 +1,15 @@
 import time
 import json
-import locale
 import gspread
 from io import TextIOWrapper
 from datetime import datetime
 from gspread.worksheet import Worksheet
 from tracker.price_getters import *
-from tracker.misc import printError, parseRealToFloat
+from tracker.misc import printError, parseRealToFloat, getFloatInCurrency
 from win10toast import ToastNotifier
 
 def getBiggerValue(price1: dict, price2: dict):
-    return price1 if price1["price"] > price2["price"] else price2
+    return price1 if price1["cash"] > price2["cash"] else price2
 
 def CheckIfValidSite(site: str, priceList: list):
     regFinder = re.compile("https://www.([A-Za-z0-9]+)")
@@ -41,45 +40,48 @@ def getBestPrice():
     return prices[0]
 
 def checkIfBestPriceEver(price: float, workSheet: Worksheet):
-    bestPrice = workSheet.cell(2, 7).value
+    bestPrice = workSheet.cell(2, 8).value
     if bestPrice: bestPrice = parseRealToFloat(bestPrice)
     
     if bestPrice is None or price < bestPrice:
-        workSheet.update_cell(2, 7, price) 
+        workSheet.update_cell(2, 8, price) 
         return True
     return False
 
+
 def sendNotification(bestPrice: dict):
-    precoStr = locale.currency(bestPrice['price'], grouping=True)
+    cash = getFloatInCurrency(bestPrice["cash"])
+    onTime = getFloatInCurrency(bestPrice["onTime"])
     store = bestPrice['store']
     toaster = ToastNotifier()
     toaster.show_toast(
         title = "Novo melhor preço!",
-        msg = f"O produto está por {precoStr} na {store}",
+        msg = f"O produto está por {cash} à vista e {onTime} à prazo na {store}",
         duration=15
     )
 
 def scrapper():
     init = time.time()
-    serviceAccount = gspread.service_account("..\gspread\\account_key.json")
-    spreadSheet = serviceAccount.open("tracking-sheet")
     dateStr = datetime.today().date().isoformat()
-    timeStr = datetime.today().time().strftime("%H:%M:%S")
-    workSheet = spreadSheet.worksheet("BestPrice")
-    cellList = workSheet.get_values("A:A")
-    rowsWritten = len(cellList)
-    bestPrice = getBestPrice()
-    notify = checkIfBestPriceEver(bestPrice['price'], workSheet)
-        
+    timeStr = datetime.today().time().strftime("%H:%M:%S") 
+
     try:
+        serviceAccount = gspread.service_account("..\gspread\\account_key.json")
+        spreadSheet = serviceAccount.open("tracking-sheet")
+        workSheet = spreadSheet.worksheet("BestPrice")
+        cellList = workSheet.get_values("A:A")
+        rowsWritten = len(cellList)
+        bestPrice = getBestPrice()
+        notify = checkIfBestPriceEver(bestPrice['cash'], workSheet)
         if cellList.count([dateStr]) == 0:
             rowsWritten += 1
             workSheet.update(
-                "A{0}:E{0}".format(rowsWritten),
+                "A{0}:F{0}".format(rowsWritten),
                 [[
                     dateStr,
                     timeStr,
-                    bestPrice["price"],
+                    bestPrice["cash"],
+                    bestPrice["onTime"],
                     bestPrice["store"],
                     bestPrice["name"]
                 ]],
@@ -88,12 +90,13 @@ def scrapper():
         else:
             lastPriceStr = workSheet.acell(f"C{rowsWritten}").value
             lastPrice = parseRealToFloat(lastPriceStr)
-            if bestPrice['price'] < lastPrice:
+            if bestPrice['cash'] < lastPrice:
                 workSheet.update(
-                    "B{0}:E{0}".format(rowsWritten),
+                    "B{0}:F{0}".format(rowsWritten),
                     [[
                         timeStr,
-                        bestPrice['price'],
+                        bestPrice['cash'],
+                        bestPrice["onTime"],
                         bestPrice['store'],
                         bestPrice["name"]
                     ]],
@@ -101,10 +104,9 @@ def scrapper():
                 )
         end = time.time()
         if notify: sendNotification(bestPrice)
+        return end - init
 
     except TypeError or FileNotFoundError as err:
         printError(err, "writePriceInSheet")
     except gspread.SpreadsheetNotFound or gspread.WorksheetNotFound as err: 
         printError(err, "writePriceInSheet")
-
-    return end - init
