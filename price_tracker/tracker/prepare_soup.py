@@ -3,8 +3,10 @@ from tracker.misc import printError
 import requests
 import cloudscraper
 
+cloudRepeatNumber = 30
+
 def cloudScrap(url: str):
-    for i in range(30):
+    for i in range(cloudRepeatNumber):
         try:
             scraper = cloudscraper.create_scraper()
             return scraper.get(url)

@@ -22,7 +22,7 @@ def getKabumPrice(url: str):
         onTime = parseRealToFloat(onTime)
         name = soup.find("h1", itemprop="name").text
         return bestPriceDict(name, "Kabum", cash, onTime)
-    except AttributeError as err: printError(err, "getKabumPrice")
+    except AttributeError: None
 
 def getPichauPriceStr(soup: BeautifulSoup):
     mainDiv = soup.find("div", {"class": pichauClass}).text
@@ -43,7 +43,7 @@ def getPichauPrice(url: str):
         onTime = parseRealToFloat(prices["onTime"])
         name = soup.find("h1", {"data-cy":"product-page-title"}).text
         return bestPriceDict(name, "Pichau", cash, onTime)
-    except AttributeError as err: printError(err, "getPichauPrice")
+    except AttributeError: None
 
 def getTerabytePrice(url: str):
     soup = prepareSoup(url)
@@ -54,4 +54,4 @@ def getTerabytePrice(url: str):
         onTime = parseRealToFloat(onTime)
         name = soup.find("h1", {"class": "tit-prod"}).text
         return bestPriceDict(name, "Terabyte", cash, onTime)
-    except AttributeError as err: printError(err, "getTerabytePrice")
+    except AttributeError: None

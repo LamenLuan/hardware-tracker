@@ -7,23 +7,29 @@ from gspread.worksheet import Worksheet
 from tracker.price_getters import *
 from tracker.misc import printError, parseRealToFloat, getFloatInCurrency
 from win10toast import ToastNotifier
+from concurrent.futures import ProcessPoolExecutor
 
 def getBiggerValue(price1: dict, price2: dict):
     return price1 if price1["cash"] > price2["cash"] else price2
 
-def CheckValidSiteGetPrice(site: str, priceList: list):
+def CheckValidSiteGetPrice(site: str):
     regFinder = re.compile("https://www.([A-Za-z0-9]+)")
     siteName = regFinder.findall(site)[0]
 
-    if siteName == "kabum": priceList.append( getKabumPrice(site) ) 
-    elif siteName == "pichau": priceList.append( getPichauPrice(site) )
-    elif siteName == "terabyteshop": priceList.append( getTerabytePrice(site) )
+    if siteName == "kabum": return getKabumPrice(site)
+    elif siteName == "pichau": return getPichauPrice(site)
+    elif siteName == "terabyteshop": return getTerabytePrice(site)
+
+def GetMaxWorkers(sites: list):
+    maxWorkes = len(sites)
+    # 61 is the thread limit of 
+    if maxWorkes > 61: maxWorkes = 61
+    return maxWorkes
 
 def PricesFromSites(file: TextIOWrapper):
-    prices = []
-    sites = json.load(file)
-    for site in sites: CheckValidSiteGetPrice(site, prices)
-    return prices
+    sites: list = json.load(file)
+    pool = ProcessPoolExecutor( max_workers=GetMaxWorkers(sites) )
+    return list( pool.map(CheckValidSiteGetPrice, sites) )
 
 def getBestPrice():
     file = open("..\sites.json", "r")

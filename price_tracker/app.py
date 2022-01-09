@@ -14,4 +14,4 @@ def runScrapper():
         printError("Connection error", "writePriceInSheet")
         print( getBestPrice() )
 
-runScrapper()
+if __name__ == '__main__': runScrapper()
