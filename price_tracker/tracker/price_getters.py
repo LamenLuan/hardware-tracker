@@ -1,9 +1,12 @@
 import re
 from bs4 import BeautifulSoup
-from tracker.prepare_soup import prepareSoup
-from tracker.misc import printError, parseRealToFloat
+from tracker.prepare_soup import prepareSoup, cloudScrap
+from tracker.misc import parseRealToFloat
 
 pichauClass = "MuiGrid-root MuiGrid-item MuiGrid-grid-xs-12 MuiGrid-grid-sm-5"
+cashId = "src__BestPrice-sc-1jvw02c-5 cBWOIB priceSales"
+onTimeId = "src__ListPrice-sc-1jvw02c-2 kXsrBq"
+nameId = "product-title__Title-sc-1hlrxcw-0 jyetLr"
 
 def bestPriceDict(name: str, store: str, cash: float, onTime: float):
     return {
@@ -54,4 +57,16 @@ def getTerabytePrice(url: str):
         onTime = parseRealToFloat(onTime)
         name = soup.find("h1", {"class": "tit-prod"}).text
         return bestPriceDict(name, "Terabyte", cash, onTime)
+    except AttributeError: None
+
+def getAmericanasPrice(url: str):
+    page = cloudScrap(url)
+    soup = BeautifulSoup(page.text, "html.parser")
+    try:
+        cash = soup.find("div", {"class": cashId}).text
+        cash = parseRealToFloat(cash)
+        onTime = soup.find("span", {"class": onTimeId}).text
+        onTime = parseRealToFloat(onTime)
+        name = soup.find("h1", {"class": nameId}).text
+        return bestPriceDict(name, "Americanas", cash, onTime)
     except AttributeError: None

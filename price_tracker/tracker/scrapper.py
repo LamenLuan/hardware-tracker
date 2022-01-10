@@ -19,15 +19,16 @@ def CheckValidSiteGetPrice(site: str):
     if siteName == "kabum": return getKabumPrice(site)
     elif siteName == "pichau": return getPichauPrice(site)
     elif siteName == "terabyteshop": return getTerabytePrice(site)
+    elif siteName == "americanas": return getAmericanasPrice(site)
 
 def GetMaxWorkers(sites: list):
     maxWorkes = len(sites)
-    # 61 is the thread limit of 
+    # 61 is the thread limit of ProcessPoolExecutor
     if maxWorkes > 61: maxWorkes = 61
     return maxWorkes
 
 def PricesFromSites(file: TextIOWrapper):
-    sites: list = json.load(file)
+    sites = json.load(file)
     pool = ProcessPoolExecutor( max_workers=GetMaxWorkers(sites) )
     return list( pool.map(CheckValidSiteGetPrice, sites) )
 
@@ -35,10 +36,8 @@ def getBestPrice():
     file = open("..\sites.json", "r")
     prices = PricesFromSites(file)
 
-    try:
-        for price in prices: prices.remove(None)
-    except:
-        if len(prices) == 0: return None
+    prices = list( filter(None, prices) )
+    if len(prices) == 0: return None
     while len(prices) > 1:
         biggerValue = getBiggerValue(prices[0], prices[1])
         prices.remove(biggerValue)
