@@ -34,9 +34,8 @@ def PricesFromSites(file: TextIOWrapper):
     return list( pool.map(CheckValidSiteGetPrice, sites) )
 
 def getBestPrice():
-    file = open("..\sites.json", "r")
+    file = open("sites.json", "r")
     prices = PricesFromSites(file)
-    print(prices)
 
     prices = list( filter(None, prices) )
     if len(prices) == 0: return None
@@ -67,13 +66,24 @@ def sendNotification(bestPrice: dict):
         duration=15
     )
 
+def getDataLine(bestPrice: dict, time: str, date: str = None):
+    dataLine = [[
+        time,
+        bestPrice["cash"],
+        bestPrice["onTime"],
+        bestPrice["store"],
+        bestPrice["name"]
+    ]]
+    if date: dataLine[0].insert(0, date)
+    return dataLine
+
 def scrapper():
     init = time.time()
     dateStr = datetime.today().date().isoformat()
     timeStr = datetime.today().time().strftime("%H:%M:%S") 
 
     try:
-        serviceAccount = gspread.service_account("..\gspread\\account_key.json")
+        serviceAccount = gspread.service_account("gspread\\account_key.json")
         spreadSheet = serviceAccount.open("tracking-sheet")
         workSheet = spreadSheet.worksheet("BestPrice")
         cellList = workSheet.get_values("A:A")
@@ -84,14 +94,7 @@ def scrapper():
             rowsWritten += 1
             workSheet.update(
                 "A{0}:F{0}".format(rowsWritten),
-                [[
-                    dateStr,
-                    timeStr,
-                    bestPrice["cash"],
-                    bestPrice["onTime"],
-                    bestPrice["store"],
-                    bestPrice["name"]
-                ]],
+                getDataLine(bestPrice, timeStr, dateStr),
                 raw = False
             )
         else:
@@ -100,13 +103,7 @@ def scrapper():
             if bestPrice['cash'] < lastPrice:
                 workSheet.update(
                     "B{0}:F{0}".format(rowsWritten),
-                    [[
-                        timeStr,
-                        bestPrice['cash'],
-                        bestPrice["onTime"],
-                        bestPrice['store'],
-                        bestPrice["name"]
-                    ]],
+                    getDataLine(bestPrice, timeStr),
                     raw = False
                 )
         end = time.time()

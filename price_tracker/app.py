@@ -2,6 +2,7 @@ import locale
 from google.auth import exceptions
 from tracker.scrapper import scrapper, getBestPrice
 from tracker.misc import printError
+from multiprocessing import freeze_support
 
 def runScrapper():
     try:
@@ -14,4 +15,6 @@ def runScrapper():
         printError("Connection error", "writePriceInSheet")
         print( getBestPrice() )
 
-if __name__ == '__main__': runScrapper()
+if __name__ == '__main__':
+    freeze_support()
+    runScrapper()
