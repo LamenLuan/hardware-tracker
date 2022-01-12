@@ -63,7 +63,8 @@ def sendNotification(bestPrice: dict):
     toaster.show_toast(
         title = "Novo melhor preço!",
         msg = f"O produto está por {cash} à vista e {onTime} à prazo na {store}",
-        duration=15
+        duration=15,
+        icon_path="outline_monetization.ico"
     )
 
 def getDataLine(bestPrice: dict, time: str, date: str = None):
