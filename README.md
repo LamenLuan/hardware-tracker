@@ -12,7 +12,7 @@ I learned that configuration in this [video](https://youtu.be/bu5wXjz2KvU):
 - In a project, enable Google Drive and Google Sheets APIs
 - Generate a client email in Sheets API screen
 - Create a JSON private key from this client
-- Put this JSON in a directory called "gspread" in your project directory
+- Put this JSON in a directory called "gspread" in "price_tracker" directory
 - Give edit permission in a sheet called "tracking-sheet" to the client by its
  email
 - Rename work sheet as "BestPrice"
@@ -22,6 +22,6 @@ I learned that configuration in this [video](https://youtu.be/bu5wXjz2KvU):
 - Rename file to "scrapper.bat"
 - Create a task to run this .bat in Task Scheduler every you logon
 ### 4. Put your product links in a JSON
-- Create a JSON names "sites.json" in project directory
+- Create a JSON names "sites.json" in "price_tracker" directory
 - Put all links you want te script to track in the string list
 - Links from other sites will be just ignored
