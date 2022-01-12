@@ -67,3 +67,10 @@ def getGkPrice(url: str):
         name = soup.find("h1", {"class": "h1 m-0"}).text.strip()
         return bestPriceDict(name, "GK Infostore", cash, onTime)
     except AttributeError: None
+
+getters = {
+    "kabum": getKabumPrice,
+    "pichau": getPichauPrice,
+    "terabyteshop": getTeraPrice,
+    "gkinfostore": getGkPrice
+}

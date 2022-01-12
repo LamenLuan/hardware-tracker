@@ -16,11 +16,8 @@ def getBiggerValue(price1: dict, price2: dict):
 def CheckValidSiteGetPrice(site: str):
     regFinder = re.compile("https://www.([A-Za-z0-9]+)")
     siteName = regFinder.findall(site)[0]
-
-    if siteName == "kabum": return getKabumPrice(site)
-    elif siteName == "pichau": return getPichauPrice(site)
-    elif siteName == "terabyteshop": return getTeraPrice(site)
-    elif siteName == "gkinfostore": return getGkPrice(site)
+    try: return getters[siteName](site)
+    except KeyError: None
 
 def GetMaxWorkers(sites: list):
     maxWorkes = len(sites)
@@ -36,6 +33,7 @@ def PricesFromSites(file: TextIOWrapper):
 def getBestPrice():
     file = open("sites.json", "r")
     prices = PricesFromSites(file)
+    print(prices)
 
     prices = list( filter(None, prices) )
     if len(prices) == 0: return None
