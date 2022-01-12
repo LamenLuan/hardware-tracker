@@ -65,9 +65,10 @@ def sendNotification(bestPrice: dict):
         icon_path="outline_monetization.ico"
     )
 
-def getDataLine(bestPrice: dict, time: str, date: str = None):
+def createDataLine(bestPrice: dict, date: str = None):
+    timeStr = datetime.today().time().strftime("%H:%M:%S")
     dataLine = [[
-        time,
+        timeStr,
         bestPrice["cash"],
         bestPrice["onTime"],
         bestPrice["store"],
@@ -76,35 +77,41 @@ def getDataLine(bestPrice: dict, time: str, date: str = None):
     if date: dataLine[0].insert(0, date)
     return dataLine
 
+def getWorksheet():
+    serviceAccount = gspread.service_account("gspread\\account_key.json")
+    spreadSheet = serviceAccount.open("tracking-sheet")
+    return spreadSheet.worksheet("BestPrice")
+
+def getLastPrice(worksheet: Worksheet, rowsWritten: int):
+    lastPriceStr = worksheet.acell(f"C{rowsWritten}").value
+    return parseRealToFloat(lastPriceStr)
+
+def updateSheet(acell: str, sheet: Worksheet, rowsNum: int, data: list[list]):
+    sheet.update(
+        acell.format(rowsNum),
+        data,
+        raw = False
+    )
+
 def scrapper():
     init = time.time()
     dateStr = datetime.today().date().isoformat()
-    timeStr = datetime.today().time().strftime("%H:%M:%S") 
 
     try:
-        serviceAccount = gspread.service_account("gspread\\account_key.json")
-        spreadSheet = serviceAccount.open("tracking-sheet")
-        workSheet = spreadSheet.worksheet("BestPrice")
-        cellList = workSheet.get_values("A:A")
+        worksheet = getWorksheet()
+        cellList = worksheet.get_values("A:A")
         rowsWritten = len(cellList)
         bestPrice = getBestPrice()
-        notify = checkIfBestPriceEver(bestPrice['cash'], workSheet)
+        notify = checkIfBestPriceEver(bestPrice['cash'], worksheet)
+
         if cellList.count([dateStr]) == 0:
             rowsWritten += 1
-            workSheet.update(
-                "A{0}:F{0}".format(rowsWritten),
-                getDataLine(bestPrice, timeStr, dateStr),
-                raw = False
-            )
-        else:
-            lastPriceStr = workSheet.acell(f"C{rowsWritten}").value
-            lastPrice = parseRealToFloat(lastPriceStr)
-            if bestPrice['cash'] < lastPrice:
-                workSheet.update(
-                    "B{0}:F{0}".format(rowsWritten),
-                    getDataLine(bestPrice, timeStr),
-                    raw = False
-                )
+            dataLine = createDataLine(bestPrice, dateStr)
+            updateSheet("A{0}:F{0}", worksheet, rowsWritten, dataLine)
+        elif bestPrice['cash'] < getLastPrice(worksheet, rowsWritten):
+            dataLine = createDataLine(bestPrice)
+            updateSheet("B{0}:F{0}", worksheet, rowsWritten, dataLine)
+
         end = time.time()
         if notify: sendNotification(bestPrice)
         return end - init
