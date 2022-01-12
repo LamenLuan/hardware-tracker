@@ -1,10 +1,11 @@
+import re
 import time
 import json
 import gspread
 from io import TextIOWrapper
 from datetime import datetime
 from gspread.worksheet import Worksheet
-from tracker.price_getters import *
+from tracker.price_getters import getKabumPrice, getPichauPrice, getTeraPrice
 from tracker.misc import printError, parseRealToFloat, getFloatInCurrency
 from win10toast import ToastNotifier
 from concurrent.futures import ProcessPoolExecutor
@@ -18,8 +19,7 @@ def CheckValidSiteGetPrice(site: str):
 
     if siteName == "kabum": return getKabumPrice(site)
     elif siteName == "pichau": return getPichauPrice(site)
-    elif siteName == "terabyteshop": return getTerabytePrice(site)
-    elif siteName == "americanas": return getAmericanasPrice(site)
+    elif siteName == "terabyteshop": return getTeraPrice(site)
 
 def GetMaxWorkers(sites: list):
     maxWorkes = len(sites)
@@ -35,6 +35,7 @@ def PricesFromSites(file: TextIOWrapper):
 def getBestPrice():
     file = open("..\sites.json", "r")
     prices = PricesFromSites(file)
+    print(prices)
 
     prices = list( filter(None, prices) )
     if len(prices) == 0: return None

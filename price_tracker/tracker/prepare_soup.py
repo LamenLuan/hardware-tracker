@@ -21,7 +21,3 @@ def prepareSoup(url: str):
     page = requests.get(url)
     if not page: page = cloudScrap(url)
     return getSoup(page)
-
-def prepareCloudSoup(url: str):
-    page = cloudScrap(url)
-    return getSoup(page)
