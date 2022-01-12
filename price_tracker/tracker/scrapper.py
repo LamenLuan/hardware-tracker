@@ -5,7 +5,7 @@ import gspread
 from io import TextIOWrapper
 from datetime import datetime
 from gspread.worksheet import Worksheet
-from tracker.price_getters import getKabumPrice, getPichauPrice, getTeraPrice
+from tracker.price_getters import *
 from tracker.misc import printError, parseRealToFloat, getFloatInCurrency
 from win10toast import ToastNotifier
 from concurrent.futures import ProcessPoolExecutor
@@ -20,6 +20,7 @@ def CheckValidSiteGetPrice(site: str):
     if siteName == "kabum": return getKabumPrice(site)
     elif siteName == "pichau": return getPichauPrice(site)
     elif siteName == "terabyteshop": return getTeraPrice(site)
+    elif siteName == "gkinfostore": return getGkPrice(site)
 
 def GetMaxWorkers(sites: list):
     maxWorkes = len(sites)

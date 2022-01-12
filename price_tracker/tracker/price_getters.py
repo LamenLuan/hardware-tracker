@@ -55,3 +55,15 @@ def getTeraPrice(url: str):
         name = soup.find("h1", {"class": "tit-prod"}).text
         return bestPriceDict(name, "Terabyte", cash, onTime)
     except AttributeError: None
+
+def getGkPrice(url: str):
+    soup = prepareSoup(url)
+    try:
+        prices = soup.find_all("span", {"class": "total"})
+        cash = prices[1].text
+        cash = parseRealToFloat(cash)
+        onTime = prices[0].text
+        onTime = parseRealToFloat(onTime)
+        name = soup.find("h1", {"class": "h1 m-0"}).text.strip()
+        return bestPriceDict(name, "GK Infostore", cash, onTime)
+    except AttributeError: None
