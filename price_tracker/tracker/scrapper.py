@@ -33,7 +33,6 @@ def PricesFromSites(file: TextIOWrapper):
 def getBestPrice():
     file = open("sites.json", "r")
     prices = PricesFromSites(file)
-    print(prices)
 
     prices = list( filter(None, prices) )
     if len(prices) == 0: return None
