@@ -5,3 +5,4 @@ requests
 .vscode
 __pycache__
 account_key.json
+build
