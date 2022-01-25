@@ -1,6 +1,11 @@
 # hardware-tracker
 This python script is built to track a product price in the three biggest brazilian hardware e-commerces (Kabum, Pichau, Terabyteshop), storing that information on a google spreadsheet, and notificating me when price hit a new minimun. This is my first experience with python, don't expect much from it 🙂
 
+## Screenshot
+<p align="center">
+  <img src="https://github.com/LamenLuan/hardware-tracker/blob/main/screenshot.png">
+</p>
+
 ## Tutorial to run
 ### 1. Install with pip
 - beautifulsoup4
