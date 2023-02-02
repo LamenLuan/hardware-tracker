@@ -22,7 +22,7 @@ I learned that configuration in this [video](https://youtu.be/bu5wXjz2KvU):
 - Give edit permission in a sheet called "tracking-sheet" to the client by its
  email
 - Rename work sheet as "BestPrice"
-### 4. Put your product links in a JSON
+### 3. Put your product links in a JSON
 - Create a JSON names "sites.json" in "price_tracker" directory
 - Put all links you want te script to track in the string list
 - Links from other sites will be just ignored
